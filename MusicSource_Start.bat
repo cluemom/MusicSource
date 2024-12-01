@@ -1,0 +1,6 @@
+@echo off
+echo Starting Cloudflare Tunnel in a new CMD window...
+start cmd /k "cloudflared tunnel run musicsourcetunnel"
+
+echo Starting Waitress Server in a new CMD window...
+start cmd /k "python -m waitress --host=127.0.0.1 --port=8420 musicsource.wsgi:application"

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Events</title>
+    <style>
+        /* Dark mode styles */
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            color: #ff9800;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 3fr; /* Adjusted grid to 5 columns */
+            gap: 20px; /* Space between columns */
+            margin-bottom: 20px;
+            border: 1px solid #444;
+            padding: 15px;
+            border-radius: 8px;
+            align-items: center; /* Vertically align items */
+        }
+
+        .event-info p, .event-info a, .event-location p {
+            margin: 0;
+            font-size: 1.1em;
+        }
+
+        .event-info a {
+            color: #ff9800;
+            font-size: 1.3em;
+        }
+
+        .event-info a:hover {
+            text-decoration: underline;
+        }
+
+        .event-details {
+            color: #ccc;
+        }
+
+        .event-details p {
+            margin: 5px 0;
+        }
+
+        .event-details strong {
+            color: #ff9800;
+        }
+
+        /* Optional: Improve the responsive design for smaller screens */
+        @media (max-width: 768px) {
+            li {
+                grid-template-columns: 1fr; /* Stack columns on smaller screens */
+            }
+
+            .event-details {
+                grid-column: span 5; /* Let description take full width on small screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Live Events in Nashville</h1>
+    <ul>
+        {% for event in events %}
+            <li>
+                <!-- Event Title Column -->
+	<div class="event-info">
+                <a href="{{ event.source }}" target="_blank">
+                    {% if event.artist_name %}
+                        {{ event.artist_name }} @ {{ event.title }}
+                    {% else %}
+                        {{ event.title }}
+                    {% endif %}
+                </a>
+            </div>
+
+                <!-- Event Location Column -->
+                <div class="event-location">
+                    <p> {{ event.location }}</p>
+                </div>
+
+                <!-- Event Date Column -->
+                <div class="event-info">
+                    <p>{{ event.date|date:"M d, Y" }}</p>
+                </div>
+
+                <!-- Event Time Column (AM/PM formatting) -->
+                <div class="event-info">
+                    <p> {{ event.date|time:"h:i A" }}</p> <!-- Updated format with AM/PM -->
+                </div>
+
+                <!-- Event Description Column -->
+                <div class="event-details">
+                    <p> {{ event.description }}</p>
+                </div>
+            </li>
+        {% empty %}
+            <p>No events available.</p>
+        {% endfor %}
+    </ul>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!-- templates/events_list.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto mt-10">
+    <h1 class="text-3xl mb-5">Live Events in Nashville</h1>
+    <ul>
+        {% for event in events %}
+        <li class="mb-4">
+            <h2 class="text-xl font-bold">{{ event.title }}</h2>
+            <p>{{ event.description }}</p>
+            <p>{{ event.date }} at {{ event.location }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
