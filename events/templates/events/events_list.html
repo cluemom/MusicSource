@@ -61,6 +61,23 @@
             color: #ff9800;
         }
 
+        .filter-container {
+            display: flex;
+            justify-content: flex-end; /* Align to the right */
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 20px;
+        }
+        .filter-container a {
+            margin-left: 10px;
+            color: #ff9800;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .filter-container a:hover {
+            text-decoration: underline;
+        }
+
         /* Optional: Improve the responsive design for smaller screens */
         @media (max-width: 768px) {
             li {
@@ -75,6 +92,12 @@
 </head>
 <body>
     <h1>Live Events in Nashville</h1>
+    <div class="filter-container">
+        <a href="?tag=jam">Filter Jams</a>
+        <a href="?tag=open_mic">Filter Open Mic/Karaoke</a>
+        <a href="?">Show All</a>
+    </div>
+
     <ul>
         {% for event in events %}
             <li>

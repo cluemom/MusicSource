@@ -3,7 +3,11 @@ from .models import Event
 from django.utils.timezone import now
 
 def events_list(request):
-    events = Event.objects.filter(date__gte=now()).order_by('date')
+    tag_filter = request.GET.get('tag')  # Get the tag filter from the URL query params
+    if tag_filter:
+        events = Event.objects.filter(tags=tag_filter, date__gte=now()).order_by('date')
+    else:
+        events = Event.objects.filter(date__gte=now()).order_by('date')
     return render(request, 'events/events_list.html', {'events': events})
 
 def event_detail(request, event_id):
