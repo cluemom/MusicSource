@@ -1,0 +1,28 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<h1>Apply Tag to Selected Events</h1>
+
+<p>You're about to tag the following events:</p>
+<ul>
+    {% for event in events %}
+    <li>{{ event }}</li>
+    {% endfor %}
+</ul>
+
+<form method="post">
+    {% csrf_token %}
+    <div>
+        <label for="id_tag">Select Tag:</label>
+        <select name="tag" id="id_tag" required>
+            <option value="" selected disabled>Choose a tag</option>
+            {% for tag, tag_display in tag_choices %}
+            <option value="{{ tag }}">{{ tag_display }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" name="apply">Apply Tag</button>
+</form>
+
+<p><a href="{{ request.get_full_path }}">Cancel</a></p>
+{% endblock %}
