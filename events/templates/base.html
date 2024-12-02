@@ -1,9 +1,22 @@
 <!-- templates/base.html -->
-<html class="dark">
+<html class="{% if request.resolver_match.app_name == 'admin' %}light{% else %}dark{% endif %}">
 <head>
+    <!-- Meta tag for responsiveness on mobile devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- Conditionally load Tailwind CSS for non-admin pages -->
+    {% if not request.resolver_match.app_name == 'admin' %}
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    {% endif %}
+
+    <!-- Add additional head elements or titles if needed -->
+    <title>Your Site Title</title>
 </head>
-<body class="bg-gray-900 text-white">
-    {% block content %}{% endblock %}
+<body class="{% if request.resolver_match.app_name == 'admin' %}bg-white text-black{% else %}bg-gray-900 text-white{% endif %}">
+
+    <!-- Main content area -->
+    {% block content %}
+    {% endblock %}
+
 </body>
 </html>
