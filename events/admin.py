@@ -3,21 +3,27 @@ from django.shortcuts import render
 from .models import Event, AdminAccount
 from datetime import timedelta
 
-
 # Action for tagging selected events
 def tag_selected_events(modeladmin, request, queryset):
     # Get the tag choices from the Event model
     tag_choices = Event.TAG_CHOICES
 
     if 'apply' in request.POST:
-        selected_tag = request.POST.get('tag')
+        selected_tag = request.POST.get('tag')  # Retrieve selected tag from form
         if selected_tag:
-            for event in queryset:
-                # Update the tags field with the selected choice
-                event.tags = selected_tag
-                event.save()
-            modeladmin.message_user(request, f"Tag '{selected_tag}' applied to selected events.")
-            return
+            # Check if the selected tag is valid
+            valid_tags = dict(Event.TAG_CHOICES).keys()
+            if selected_tag in valid_tags:
+                for event in queryset:
+                    # Update the tags field with the selected choice
+                    event.tags = selected_tag
+                    event.save()
+                modeladmin.message_user(request, f"Tag '{selected_tag}' applied to selected events.")
+            else:
+                modeladmin.message_user(request, "Invalid tag selected.", level="error")
+        else:
+            modeladmin.message_user(request, "No tag selected.", level="error")
+        return
 
     # Render the admin action page with available tag choices
     return render(
@@ -26,13 +32,12 @@ def tag_selected_events(modeladmin, request, queryset):
         {'events': queryset, 'tag_choices': tag_choices, 'title': 'Tag Selected Events'}
     )
 
-
 tag_selected_events.short_description = "Tag selected events"
 
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('title', 'date', 'location', 'source', 'tags')
+    list_display = ('title', 'artist_name', 'date', 'location', 'source', 'tags')
     fields = ('title', 'artist_name', 'location', 'date', 'description', 'source', 'weekly', 'tags')
     actions = [tag_selected_events]  # Add the custom action to the actions dropdown
 
