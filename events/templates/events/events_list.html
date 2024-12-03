@@ -45,6 +45,10 @@
             font-size: 1.3em;
         }
 
+        .event-info a.red-text {
+            color: red !important; /* Ensure red overrides other styles */
+        }
+
         .event-info a:hover {
             text-decoration: underline;
         }
@@ -107,7 +111,8 @@
             <li>
                 <!-- Event Title Column -->
                 <div class="event-info">
-                    <a href="{{ event.source }}" target="_blank">
+                    <a href="{{ event.source }}" target="_blank"
+                       class="{% if 'sterfry' in event.title|lower or 'sterfry' in event.artist_name|lower %}red-text{% endif %}">
                         {% if event.artist_name %}
                             {{ event.artist_name }} @ {{ event.title }}
                         {% else %}
