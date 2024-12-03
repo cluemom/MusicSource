@@ -1,21 +1,20 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin
+from django.contrib.auth.models import User
 from django.shortcuts import render
 from .models import Event, AdminAccount
 from datetime import timedelta
 
 # Action for tagging selected events
 def tag_selected_events(modeladmin, request, queryset):
-    # Get the tag choices from the Event model
     tag_choices = Event.TAG_CHOICES
 
     if 'apply' in request.POST:
-        selected_tag = request.POST.get('tag')  # Retrieve selected tag from form
+        selected_tag = request.POST.get('tag')
         if selected_tag:
-            # Check if the selected tag is valid
             valid_tags = dict(Event.TAG_CHOICES).keys()
             if selected_tag in valid_tags:
                 for event in queryset:
-                    # Update the tags field with the selected choice
                     event.tags = selected_tag
                     event.save()
                 modeladmin.message_user(request, f"Tag '{selected_tag}' applied to selected events.")
@@ -25,7 +24,6 @@ def tag_selected_events(modeladmin, request, queryset):
             modeladmin.message_user(request, "No tag selected.", level="error")
         return
 
-    # Render the admin action page with available tag choices
     return render(
         request,
         'admin/tag_selected_events.html',
@@ -39,14 +37,13 @@ tag_selected_events.short_description = "Tag selected events"
 class EventAdmin(admin.ModelAdmin):
     list_display = ('title', 'artist_name', 'date', 'location', 'source', 'tags')
     fields = ('title', 'artist_name', 'location', 'date', 'description', 'source', 'weekly', 'tags')
-    actions = [tag_selected_events]  # Add the custom action to the actions dropdown
+    actions = [tag_selected_events]
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
 
-        # Automatically populate 4 weeks' worth of events if 'weekly' is checked
-        if not change and obj.weekly:  # Only execute on creation
-            for week in range(1, 4):  # Generate events for the next 3 weeks
+        if not change and obj.weekly:
+            for week in range(1, 4):
                 Event.objects.create(
                     title=obj.title,
                     artist_name=obj.artist_name,
@@ -55,10 +52,47 @@ class EventAdmin(admin.ModelAdmin):
                     description=obj.description,
                     source=obj.source,
                     tags=obj.tags,
-                    weekly=False  # Prevent recursion
+                    weekly=False
                 )
 
 
 @admin.register(AdminAccount)
 class AdminAccountAdmin(admin.ModelAdmin):
     list_display = ('user', 'created_at')
+
+
+# Override the UserAdmin to restrict "Reset Password" and "Password Field"
+class UserAdmin(DefaultUserAdmin):
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        if not request.user.is_superuser:
+            extra_context = extra_context or {}
+            extra_context['show_password_reset_button'] = False  # Hide the reset button
+        return super().change_view(request, object_id, form_url, extra_context)
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if not request.user.is_superuser:
+            # Remove password-related fields for non-superusers
+            if 'password' in form.base_fields:
+                del form.base_fields['password']
+        return form
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj)
+        if not request.user.is_superuser:
+            # Remove password fields from the displayed fieldsets for non-superusers
+            return [
+                (name, {'fields': [field for field in fields if field != 'password']})
+                for name, opts in fieldsets
+                for fields in (opts.get('fields', []),)
+            ]
+        return fieldsets
+
+    def has_change_permission(self, request, obj=None):
+        if not request.user.is_superuser and obj:
+            return False  # Disallow changes to User model for non-superusers
+        return super().has_change_permission(request, obj)
+
+# Unregister the default UserAdmin and register the customized one
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)
