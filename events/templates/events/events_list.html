@@ -26,13 +26,13 @@
 
         li {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr 3fr; /* Adjusted grid to 5 columns */
-            gap: 20px; /* Space between columns */
+            grid-template-columns: 2fr 1fr 1fr 1fr 3fr;
+            gap: 20px;
             margin-bottom: 20px;
             border: 1px solid #444;
             padding: 15px;
             border-radius: 8px;
-            align-items: center; /* Vertically align items */
+            align-items: center;
         }
 
         .event-info p, .event-info a, .event-location p {
@@ -63,29 +63,30 @@
 
         .filter-container {
             display: flex;
-            justify-content: flex-end; /* Align to the right */
+            justify-content: flex-end;
             align-items: center;
             margin-bottom: 20px;
             padding: 0 20px;
         }
+
         .filter-container a {
             margin-left: 10px;
             color: #ff9800;
             text-decoration: none;
             font-weight: bold;
         }
+
         .filter-container a:hover {
             text-decoration: underline;
         }
 
-        /* Optional: Improve the responsive design for smaller screens */
         @media (max-width: 768px) {
             li {
-                grid-template-columns: 1fr; /* Stack columns on smaller screens */
+                grid-template-columns: 1fr;
             }
 
             .event-details {
-                grid-column: span 5; /* Let description take full width on small screens */
+                grid-column: span 5;
             }
         }
     </style>
@@ -93,28 +94,31 @@
 <body>
     <h1>Live Events in Nashville</h1>
     <div class="filter-container">
-        <a href="?tag=jam">Filter Jams</a>
-        <a href="?tag=open_mic">Filter Open Mic/Karaoke</a>
-        <a href="?">Show All</a>
+        {% if request.GET.hide_open_mic %}
+            <a href="?">Show Open Mic/Karaoke</a>
+        {% else %}
+            <a href="?hide_open_mic=1">Hide Open Mic/Karaoke</a>
+        {% endif %}
     </div>
 
     <ul>
         {% for event in events %}
+            {% if not request.GET.hide_open_mic or event.tags != "open_mic" %}
             <li>
                 <!-- Event Title Column -->
-	<div class="event-info">
-                <a href="{{ event.source }}" target="_blank">
-                    {% if event.artist_name %}
-                        {{ event.artist_name }} @ {{ event.title }}
-                    {% else %}
-                        {{ event.title }}
-                    {% endif %}
-                </a>
-            </div>
+                <div class="event-info">
+                    <a href="{{ event.source }}" target="_blank">
+                        {% if event.artist_name %}
+                            {{ event.artist_name }} @ {{ event.title }}
+                        {% else %}
+                            {{ event.title }}
+                        {% endif %}
+                    </a>
+                </div>
 
                 <!-- Event Location Column -->
                 <div class="event-location">
-                    <p> {{ event.location }}</p>
+                    <p>{{ event.location }}</p>
                 </div>
 
                 <!-- Event Date Column -->
@@ -124,14 +128,15 @@
 
                 <!-- Event Time Column (AM/PM formatting) -->
                 <div class="event-info">
-                    <p> {{ event.date|time:"h:i A" }}</p> <!-- Updated format with AM/PM -->
+                    <p>{{ event.date|time:"h:i A" }}</p>
                 </div>
 
                 <!-- Event Description Column -->
                 <div class="event-details">
-                    <p> {{ event.description }}</p>
+                    <p>{{ event.description }}</p>
                 </div>
             </li>
+            {% endif %}
         {% empty %}
             <p>No events available.</p>
         {% endfor %}
