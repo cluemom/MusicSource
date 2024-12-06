@@ -68,3 +68,5 @@ coverage.xml
 # Deployment-specific (waitress logs or others)
 waitress.log
 gunicorn.log
+
+.vscode/
