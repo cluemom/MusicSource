@@ -26,11 +26,3 @@ class Event(models.Model):
         if self.artist_name:
             return f"{self.artist_name} @ {self.title}"
         return self.title
-
-# AdminAccount model (no changes, but marked for deletion as per comment)
-class AdminAccount(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.user.username

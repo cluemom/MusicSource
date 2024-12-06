@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin
 from django.contrib.auth.models import User
 from django.shortcuts import render
-from .models import Event, AdminAccount
+from .models import Event
 from datetime import timedelta
 
 # Action for tagging selected events
@@ -54,11 +54,6 @@ class EventAdmin(admin.ModelAdmin):
                     tags=obj.tags,
                     weekly=False
                 )
-
-
-@admin.register(AdminAccount)
-class AdminAccountAdmin(admin.ModelAdmin):
-    list_display = ('user', 'created_at')
 
 
 # Override the UserAdmin to restrict "Reset Password" and "Password Field"
