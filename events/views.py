@@ -18,12 +18,16 @@ def events_list(request):
     # Check if the previous month navigation is needed
     has_previous_month = current_date > localtime(now()).date().replace(day=1)
 
+    # Adjust current time by subtracting 3 hours for filtering
+    offset_time = now() - timedelta(hours=3)
+
     # Filter events
     events = Event.objects.filter(
-        date__gte=now(),
+        date__gte=offset_time,  # Offset the current time by 3 hours
         date__month=month,
         date__year=year
     ).order_by('date')
+
     if tag_filter:
         events = events.filter(tags=tag_filter)
     if hide_open_mic:
