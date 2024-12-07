@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Event
-from django.utils.timezone import now
+from django.utils.timezone import now, localtime
 from datetime import timedelta, date
 import calendar
 
@@ -16,7 +16,7 @@ def events_list(request):
     prev_month_date = (current_date - timedelta(days=1)).replace(day=1)
 
     # Check if the previous month navigation is needed
-    has_previous_month = current_date > now().date().replace(day=1)
+    has_previous_month = current_date > localtime(now()).date().replace(day=1)
 
     # Filter events
     events = Event.objects.filter(
@@ -28,6 +28,9 @@ def events_list(request):
         events = events.filter(tags=tag_filter)
     if hide_open_mic:
         events = events.exclude(tags="open_mic")
+
+    # Normalize today's date to America/Chicago time
+    today = localtime(now()).date()
 
     context = {
         'events': events,
@@ -41,6 +44,7 @@ def events_list(request):
         'prev_month': prev_month_date.month,
         'prev_year': prev_month_date.year,
         'hide_open_mic': hide_open_mic,
+        'today': today,  # Pass normalized today
     }
     return render(request, 'events/events_list.html', context)
 

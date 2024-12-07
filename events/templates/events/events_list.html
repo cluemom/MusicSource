@@ -7,7 +7,7 @@
     <style>
         /* Dark mode styles */
         body {
-            background-color: #121212;
+            background-color: #000; /* Ensure background matches non-highlighted events */
             color: white;
             font-family: Arial, sans-serif;
         }
@@ -33,6 +33,12 @@
             padding: 15px;
             border-radius: 8px;
             align-items: center;
+            background-color: #000; /* Default background color */
+        }
+
+        /* Highlight for current day events */
+        .current-day {
+            background-color: #2c2c2c;
         }
 
         .event-info p, .event-info a, .event-location p {
@@ -147,7 +153,7 @@
     <ul>
         {% for event in events %}
             {% if not hide_open_mic or event.tags != "open_mic" %}
-            <li>
+            <li class="{% if event.date|date:"Y-m-d" == today|date:"Y-m-d" %}current-day{% endif %}">
                 <div class="event-info">
                     <a href="{{ event.source }}" target="_blank"
                        class="{% if 'sterfry' in event.title|lower or 'sterfry' in event.artist_name|lower %}red-text{% endif %}">
