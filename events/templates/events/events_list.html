@@ -7,7 +7,7 @@
     <style>
         /* Dark mode styles */
         body {
-            background-color: #121212;
+            background-color: #000; /* Ensure background matches non-highlighted events */
             color: white;
             font-family: Arial, sans-serif;
         }
@@ -33,6 +33,12 @@
             padding: 15px;
             border-radius: 8px;
             align-items: center;
+            background-color: #000; /* Default background color */
+        }
+
+        /* Highlight for current day events */
+        .current-day {
+            background-color: #2c2c2c;
         }
 
         .event-info p, .event-info a, .event-location p {
@@ -46,7 +52,7 @@
         }
 
         .event-info a.red-text {
-            color: red !important; /* Ensure red overrides other styles */
+            color: red !important;
         }
 
         .event-info a:hover {
@@ -67,20 +73,42 @@
 
         .filter-container {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
             padding: 0 20px;
         }
 
         .filter-container a {
-            margin-left: 10px;
             color: #ff9800;
             text-decoration: none;
             font-weight: bold;
+            font-size: 0.9em;
         }
 
         .filter-container a:hover {
+            text-decoration: underline;
+        }
+
+        .month-navigation {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            font-size: 0.9em;
+        }
+
+        .month-navigation a {
+            color: #ff9800;
+            text-decoration: none;
+        }
+
+        .month-navigation a:hover {
+            text-decoration: underline;
+        }
+
+        .month-navigation span {
+            font-size: 1em;
+            color: #ff9800;
             text-decoration: underline;
         }
 
@@ -93,6 +121,7 @@
                 grid-column: span 5;
             }
         }
+
         .footer {
             display: flex;
             justify-content: center;
@@ -107,18 +136,24 @@
 <body>
     <h1>Live Events in Nashville</h1>
     <div class="filter-container">
-        {% if request.GET.hide_open_mic %}
-            <a href="?">Show Open Mic/Karaoke</a>
+        <div class="month-navigation">
+            {% if has_previous_month %}
+                <a href="?month={{ prev_month }}&year={{ prev_year }}{% if hide_open_mic %}&hide_open_mic=1{% endif %}">&lt;</a>
+            {% endif %}
+            <span>{{ current_month_name }}</span>
+            <a href="?month={{ next_month }}&year={{ next_year }}{% if hide_open_mic %}&hide_open_mic=1{% endif %}">&gt;</a>
+        </div>
+        {% if hide_open_mic %}
+            <a href="?{% for key, value in request.GET.items %}{% if key != 'hide_open_mic' %}{{ key }}={{ value }}&{% endif %}{% endfor %}">Show Open Mic/Karaoke</a>
         {% else %}
-            <a href="?hide_open_mic=1">Hide Open Mic/Karaoke</a>
+            <a href="?{% for key, value in request.GET.items %}{{ key }}={{ value }}&{% endfor %}hide_open_mic=1">Hide Open Mic/Karaoke</a>
         {% endif %}
     </div>
 
     <ul>
         {% for event in events %}
-            {% if not request.GET.hide_open_mic or event.tags != "open_mic" %}
-            <li>
-                <!-- Event Title Column -->
+            {% if not hide_open_mic or event.tags != "open_mic" %}
+            <li class="{% if event.date|date:"Y-m-d" == today|date:"Y-m-d" %}current-day{% endif %}">
                 <div class="event-info">
                     <a href="{{ event.source }}" target="_blank"
                        class="{% if 'sterfry' in event.title|lower or 'sterfry' in event.artist_name|lower %}red-text{% endif %}">
@@ -129,23 +164,15 @@
                         {% endif %}
                     </a>
                 </div>
-
-                <!-- Event Location Column -->
                 <div class="event-location">
                     <p>{{ event.location }}</p>
                 </div>
-
-                <!-- Event Date Column -->
                 <div class="event-info">
                     <p>{{ event.date|date:"M d, Y" }}</p>
                 </div>
-
-                <!-- Event Time Column (AM/PM formatting) -->
                 <div class="event-info">
                     <p>{{ event.date|time:"h:i A" }}</p>
                 </div>
-
-                <!-- Event Description Column -->
                 <div class="event-details">
                     <p>{{ event.description }}</p>
                 </div>
